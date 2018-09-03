@@ -9,6 +9,7 @@ CREATE TABLE article #記事
 CREATE TABLE user #ユーザー
 (
 	id INT NOT NULL,
+	name CHAR(20),
 	password CHAR(100)
 );
 
