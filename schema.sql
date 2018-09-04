@@ -1,22 +1,25 @@
 CREATE TABLE article #記事
 (
-	id INT NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	created_at DATETIME,
 	image INT,
-	good INT
+	good INT,
+	PRIMARY KEY(id)
 );
 
 CREATE TABLE user #ユーザー
 (
-	id INT NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	name CHAR(191),
-	password CHAR(100)
+	password CHAR(100),
+	PRIMARY KEY(id)
 );
 
 CREATE TABLE comment #コメント
 (
-	id INT NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	user_id INT, #投稿者のID
 	article_id INT, #どの記事に対するコメントか 
-	contents TEXT	
+	contents TEXT,
+	PRIMARY KEY(id)
 );
