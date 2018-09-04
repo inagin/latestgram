@@ -1,0 +1,8 @@
+<h2>latestgram</h2>
+
+<% @results.each do |row| %> 
+	投稿者名: <%= row['name'] %> <br />
+	投稿日時: <%= row['created_at'] %> <br />
+	いいね <%= row['good'] %> <br />
+	<%= row['contents'] %> <br />
+<% end %>
