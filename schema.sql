@@ -2,8 +2,10 @@ CREATE TABLE article #記事
 (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	created_at DATETIME,
+	user_id INT,
 	image INT,
 	good INT,
+	contents TEXT,
 	PRIMARY KEY(id)
 );
 
