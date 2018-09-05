@@ -33,9 +33,7 @@ get '/' do
 		query = "SELECT name FROM latestgram.user AS us WHERE us.id = #{@id}"
 
 		results = db.query(query)
-		results.each do |row|
-			@name = row['name']
-		end
+		@name = results.first
 
 	end
 
@@ -116,10 +114,7 @@ post '/login' do
 		redirect "/login"
 	end
 
-	res = nil
-	result.each do |row|
-		res = row
-	end
+	res = result.first
 	if(BCrypt::Password.new(res['password']) == password) then
 		#ログイン成功
 		flash[:notice] = "#{name} としてログインしました"
