@@ -1,13 +1,31 @@
 <h2>latestgram</h2>
 <a href="http://localhost:4567/signup">Sign Up</a>
+<a href="http://localhost:4567/login">Login</a>
+
+<p><%= flash[:notice] %></p>
 
 <hr />
-<p><%= flash[:notice] %></p>
+<% i=0 %>
 <% @results.each do |row| %> 
 	<p>投稿者名: <%= row['name'] %> </p>
 	<p>投稿日時: <%= row['created_at'] %> </p>
 	<p>いいね <%= row['good'] %> </p>
 	<p><%= row['contents'] %> </p>
+	
 	<hr />
+
+	<p>この画像に対するコメント</p>
+	<% @comments[i].each do |row|%>
+
+		<p>投稿: <%= row['id'] %> </p>
+		<p>投稿日時: <%= row['created_at'] %> </p>
+		<p><%= row['contents'] %></p>
+
+	<% end %>
+
+	<hr />
+	<hr />
+
+	<% i = i + 1 %>
 <% end %>
 

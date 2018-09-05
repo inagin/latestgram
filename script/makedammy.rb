@@ -21,7 +21,8 @@ end
 
 #Article
 for i in 0...100 do
-	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(31), rand(24), rand(60), rand(60))
+	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...31), rand(24), rand(60), rand(60))
+
 	user_id = rand(100)
 	good = rand(20)
 	contents = "HOGE"
@@ -33,11 +34,13 @@ end
 
 #Comment
 for i in 0...150 do
+	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...31), rand(24), rand(60), rand(60))
+
 	user_id = rand(200)
 	article_id = rand(100)
 	contents = "yes"
 
-	query = "INSERT INTO latestgram.comment (user_id, article_id, contents) VALUES(#{user_id}, #{article_id}, '#{contents}')"
+	query = "INSERT INTO latestgram.comment (created_at, user_id, article_id, contents) VALUES('#{created_at}', #{user_id}, #{article_id}, '#{contents}')"
 
 	db.query(query)
 end
