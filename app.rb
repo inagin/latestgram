@@ -3,6 +3,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'mysql2'
 require 'sinatra/flash'
+require 'date'
 
 set :sessions,
 	secret: 'set_your_secret_key'
@@ -27,6 +28,17 @@ end
 get '/' do
 	@title = "latestgram - Top Page"
 
+	@id = session[:user_id]
+	if(!@id.nil?) then
+		query = "SELECT name FROM latestgram.user AS us WHERE us.id = #{@id}"
+
+		results = db.query(query)
+		results.each do |row|
+			@name = row['name']
+		end
+
+	end
+
 	query = %q{SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50}
 	@results = db.query(query)
 	@comments = {}
@@ -34,7 +46,7 @@ get '/' do
 	@results.each do |row|
 		#Todo: ループクエリになっている
 		#      commentから対応する3件のコメントを引っ張ってきた上で、そのコメントに対応するユーザー名も取得したい
-		query = "SELECT id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
+		query = "SELECT user_id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
 	
 		
 		@comments[row['id']] = db.query(query)
@@ -129,5 +141,32 @@ get '/comment/:article_id' do |id|
 		@result = row
 	end
 
+	query = "SELECT user_id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{@result['id']} ORDER BY co.created_at DESC, co.id DESC"
+	@comments = db.query(query)
+
 	erb :comment
+end
+
+post '/comment/submit' do 
+	user_id = session[:user_id]
+	if(user_id.nil?) then
+		flash[:notice] = "コメントをするにはログインを行ってください"
+		redirect "/"
+	end
+
+	id = params[:id]
+	contents = params[:comment]
+
+	if(contents.empty?) then
+		flash[:notice] = "コメント欄には少なくとも１文字以上記入してください"
+		redirect "/comment/#{id}"
+	end
+
+	#コメントの投稿処理
+	created_at = DateTime.now.strftime('%Y-%m-%d %H:%M:%S')
+	query = "INSERT INTO latestgram.comment (created_at, user_id, article_id, contents) VALUES('#{created_at}', #{user_id}, #{id}, ?)"
+	statement = db.prepare(query)
+	statement.execute(contents)
+
+	redirect "/comment/#{id}"
 end
