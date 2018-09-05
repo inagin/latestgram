@@ -4,28 +4,32 @@
 
 <p><%= flash[:notice] %></p>
 
+<% if !@id.nil? then%>
+<p>ようこそ <%= @name %> さん</p>
+<% end %>
+
 <hr />
-<% i=0 %>
 <% @results.each do |row| %> 
 	<p>投稿者名: <%= row['name'] %> </p>
 	<p>投稿日時: <%= row['created_at'] %> </p>
+	<p><img src="<%= row['image'] %>"></p>
 	<p>いいね <%= row['good'] %> </p>
 	<p><%= row['contents'] %> </p>
 	
 	<hr />
 
 	<p>この画像に対するコメント</p>
-	<% @comments[i].each do |row|%>
+	<% @comments[row['id']].each do |c|%>
 
-		<p>投稿: <%= row['id'] %> </p>
-		<p>投稿日時: <%= row['created_at'] %> </p>
-		<p><%= row['contents'] %></p>
+		<p>投稿者ID: <%= c['user_id'] %> </p>
+		<p>投稿日時: <%= c['created_at'] %> </p>
+		<p><%= c['contents'] %></p>
 
 	<% end %>
 
-	<hr />
-	<hr />
+	<p><a href="http://localhost:4567/comment/<%= row['id']%>">コメントページへ移動する</a></p>
 
-	<% i = i + 1 %>
+	<hr />
+	<hr />
 <% end %>
 
