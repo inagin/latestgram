@@ -34,8 +34,10 @@ get '/' do
 	@comments_userid = []
 
 	@results.each do |row|
+		#Todo: ループクエリになっている
+		#      commentから対応する3件のコメントを引っ張ってきた上で、そのコメントに対応するユーザー名も取得したい
 		query = "SELECT id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
-		#Todo: commentから対応する3件のコメントを引っ張ってきた上で、そのコメントに対応するユーザー名も取得したい
+	
 		
 		@comments.push( db.query(query) )
 	end
@@ -86,7 +88,7 @@ get '/login' do
 	erb :login
 end
 
-post '/login_confirm' do
+post '/login' do
 	name = params[:name]
 	password = params[:password]
 
@@ -95,8 +97,9 @@ post '/login_confirm' do
 		redirect "/login"
 	end
 
-	query = "SELECT id, name, password FROM latestgram.user WHERE name = '#{name}'"
-	result = db.query(query)
+	query = "SELECT id, name, password FROM latestgram.user WHERE name = ?"
+	statement = db.prepare(query)
+	result = statement.execute(name)	
 
 	if(result.count == 0) then
 		flash[:notice] = "名前かパスワードが違います"
