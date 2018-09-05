@@ -29,9 +29,7 @@ get '/' do
 
 	query = %q{SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50}
 	@results = db.query(query)
-
-	@comments = []
-	@comments_userid = []
+	@comments = {}
 
 	@results.each do |row|
 		#Todo: ループクエリになっている
@@ -39,7 +37,7 @@ get '/' do
 		query = "SELECT id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
 	
 		
-		@comments.push( db.query(query) )
+		@comments[row['id']] = db.query(query)
 	end
 
 	erb :index
@@ -119,4 +117,17 @@ post '/login' do
 	end
 
 	redirect "/login"
+end
+
+get '/comment/:article_id' do |id|
+	@title = "latestgram - Comment(#{id})"
+
+	query = "SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id WHERE ar.id = #{id}"
+	results = db.query(query)
+
+	results.each do |row|
+		@result = row
+	end
+
+	erb :comment
 end

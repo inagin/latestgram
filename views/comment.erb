@@ -1,0 +1,8 @@
+<h2>latestgram</h2>
+<p><%= flash[:notice] %></p>
+
+<p>投稿者名: <%= @result['name'] %> </p>
+<p>投稿日時: <%= @result['created_at'] %> </p>
+<p><img src="<%= @result['image'] %>"></p>
+<p><%= @result['contents']%></p>
+<p>コメント</p>
