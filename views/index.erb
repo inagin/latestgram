@@ -1,11 +1,13 @@
 <h2>latestgram</h2>
+<a href="http://localhost:4567/signup">Sign Up</a>
+
+<hr />
 <p><%= flash[:notice] %></p>
 <% @results.each do |row| %> 
 	<p>投稿者名: <%= row['name'] %> </p>
 	<p>投稿日時: <%= row['created_at'] %> </p>
 	<p>いいね <%= row['good'] %> </p>
 	<p><%= row['contents'] %> </p>
+	<hr />
 <% end %>
-
-<a href="http://localhost:4567/signup">Sign Up</a>
 

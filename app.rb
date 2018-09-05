@@ -17,7 +17,7 @@ end
 get '/' do
 	@title = "latestgram - Top Page"
 
-	query = %q{SELECT name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id}
+	query = %q{SELECT name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id LIMIT 50}
 	@results = db.query(query)
 
 	erb :index
