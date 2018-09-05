@@ -1,13 +1,12 @@
 require 'mysql2'
+require 'bcrypt'
 
 client = Mysql2::Client.new(:host => '0.0.0.0', :username => 'root', :password => 'mysql')
 
-query = %q{select created_at, image, good, contents from latestgram.article}
-results = client.query(query)
+name = "test"
+pass = BCrypt::Password.create("test")
 
-puts query
-puts results
 
-results.each do |x|
-	puts x["good"]
-end
+query = "select * from latestgram.user where name = 'test'"
+result = client.query(query)
+p result.count()
