@@ -1,5 +1,5 @@
 <h2>latestgram</h2>
-
+<p><%= flash[:notice] %></p>
 <% @results.each do |row| %> 
 	<p>投稿者名: <%= row['name'] %> </p>
 	<p>投稿日時: <%= row['created_at'] %> </p>
@@ -7,5 +7,5 @@
 	<p><%= row['contents'] %> </p>
 <% end %>
 
-<a href="./signup">Sign Up</a>
+<a href="http://localhost:4567/signup">Sign Up</a>
 

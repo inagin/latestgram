@@ -1,10 +1,10 @@
-#todo GETメソッドがうまく通らない
-
 require 'bcrypt'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'mysql2'
+require 'sinatra/flash'
 
+enable :sessions
 
 private
 def db
@@ -12,6 +12,7 @@ def db
 
 	@db_client = Mysql2::Client.new(:host => '0.0.0.0', :user => 'root', :password => 'mysql')
 end
+
 
 get '/' do
 	@title = "latestgram - Top Page"
@@ -24,19 +25,20 @@ end
 
 get '/signup' do
 	@title = "latestgram - Sign Up"
-	@message = params[:info]
 
 	erb :signup
 end
 
 post '/signup_confirm' do
 	name = params[:name]
-	pass = BCrypt::Password.create(params[:password])
 
 	#名前が空 or パスワードが空
-	if(name == nil || pass == nil) then
-		redirect "/signup?info=error"
+	if(name.empty? || params[:password].empty?) then
+		flash[:notice] = "名前とパスワードを入力してください"
+		redirect "/signup"
 	end
+
+	pass = BCrypt::Password.create(params[:password])
 
 	query = "SELECT * FROM latestgram.user AS us WHERE us.name = ?"
 	statement = db.prepare(query)
@@ -45,7 +47,8 @@ post '/signup_confirm' do
 	#名前が重複している
 	if(result.count > 0) then
 		#エラー
-		redirect "/signup?info=error"
+		flash[:notice] = "その名前は登録できません"
+		redirect "/signup"
 	end
 
 	query = "INSERT INTO latestgram.user (name, password) VALUES(? , ?)"
@@ -53,5 +56,6 @@ post '/signup_confirm' do
 	statement = db.prepare(query)
 	statement.execute(name, pass)
 
+	flash[:notice] = "ユーザー登録が完了しました"
 	redirect '/'
 end
