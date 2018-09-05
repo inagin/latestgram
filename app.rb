@@ -1,3 +1,5 @@
+#todo GETメソッドがうまく通らない
+
 require 'bcrypt'
 require 'sinatra'
 require 'sinatra/reloader'
@@ -22,6 +24,7 @@ end
 
 get '/signup' do
 	@title = "latestgram - Sign Up"
+	@message = params[:info]
 
 	erb :signup
 end
@@ -30,24 +33,25 @@ post '/signup_confirm' do
 	name = params[:name]
 	pass = BCrypt::Password.create(params[:password])
 
-	query = "SELECT * FROM latestgram.user AS us WHERE us.name = '#{name}'"
-	
 	#名前が空 or パスワードが空
 	if(name == nil || pass == nil) then
-		redirect '/signup'
+		redirect "/signup?info=error"
 	end
+
+	query = "SELECT * FROM latestgram.user AS us WHERE us.name = ?"
+	statement = db.prepare(query)
+	result = statement.execute(name)	
 
 	#名前が重複している
-	if(db.query(query).count > 0) then
+	if(result.count > 0) then
 		#エラー
-		redirect '/signup'
+		redirect "/signup?info=error"
 	end
 
-	query = "INSERT INTO latestgram.user (name, password) VALUES('#{name}', '#{pass}')"
+	query = "INSERT INTO latestgram.user (name, password) VALUES(? , ?)"
 	
-	#インジェクション対策
 	statement = db.prepare(query)
-	statement.execute()
+	statement.execute(name, pass)
 
 	redirect '/'
 end
