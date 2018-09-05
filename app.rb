@@ -4,7 +4,17 @@ require 'sinatra/reloader'
 require 'mysql2'
 require 'sinatra/flash'
 
-enable :sessions
+set :sessions,
+	secret: 'set_your_secret_key'
+
+use Rack::Session::Cookie,
+	secret: 'set_your_secret_key'
+
+use Rack::Session::Pool,
+	path: '/',
+	domain: nil,
+	expire_after: 60 * 10,
+	secret: Digest::SHA256.hexdigest(rand.to_s)
 
 private
 def db
@@ -17,8 +27,18 @@ end
 get '/' do
 	@title = "latestgram - Top Page"
 
-	query = %q{SELECT name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id}
+	query = %q{SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50}
 	@results = db.query(query)
+	@comments = {}
+
+	@results.each do |row|
+		#Todo: ループクエリになっている
+		#      commentから対応する3件のコメントを引っ張ってきた上で、そのコメントに対応するユーザー名も取得したい
+		query = "SELECT id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
+	
+		
+		@comments[row['id']] = db.query(query)
+	end
 
 	erb :index
 end
@@ -58,4 +78,56 @@ post '/signup_confirm' do
 
 	flash[:notice] = "ユーザー登録が完了しました"
 	redirect '/'
+end
+
+get '/login' do
+	@title = 'latestgram - Login'
+
+	erb :login
+end
+
+post '/login' do
+	name = params[:name]
+	password = params[:password]
+
+	if(name.empty? || password.empty?) then
+		flash[:notice] = "名前とパスワードを入力してください"
+		redirect "/login"
+	end
+
+	query = "SELECT id, name, password FROM latestgram.user WHERE name = ?"
+	statement = db.prepare(query)
+	result = statement.execute(name)	
+
+	if(result.count == 0) then
+		flash[:notice] = "名前かパスワードが違います"
+		redirect "/login"
+	end
+
+	res = nil
+	result.each do |row|
+		res = row
+	end
+	if(BCrypt::Password.new(res['password']) == password) then
+		#ログイン成功
+		flash[:notice] = "#{name} としてログインしました"
+
+		session[:user_id] = res['id'];
+		redirect "/"
+	end
+
+	redirect "/login"
+end
+
+get '/comment/:article_id' do |id|
+	@title = "latestgram - Comment(#{id})"
+
+	query = "SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id WHERE ar.id = #{id}"
+	results = db.query(query)
+
+	results.each do |row|
+		@result = row
+	end
+
+	erb :comment
 end

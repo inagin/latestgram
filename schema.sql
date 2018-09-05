@@ -20,6 +20,7 @@ CREATE TABLE user #ユーザー
 CREATE TABLE comment #コメント
 (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	created_at DATETIME, #コメントの日付
 	user_id INT, #投稿者のID
 	article_id INT, #どの記事に対するコメントか 
 	contents TEXT,

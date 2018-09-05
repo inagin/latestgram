@@ -1,0 +1,9 @@
+<h2>Login</h2>
+<p><%= flash[:notice] %></p>
+<p>
+	<form action="login" method="POST">
+		名前：<input type="text" name="name" size="40" maxlength="60">
+		パスワード：<input type="text" name="password" size="40" maxlength="30">
+		<input type="submit" value="ログイン">
+	</form>
+</p>
