@@ -21,7 +21,7 @@ end
 
 #Article
 for i in 0...100 do
-	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...31), rand(24), rand(60), rand(60))
+	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...5), rand(24), rand(60), rand(60))
 
 	user_id = rand(100)
 	good = rand(20)
@@ -34,7 +34,7 @@ end
 
 #Comment
 for i in 0...150 do
-	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...31), rand(24), rand(60), rand(60))
+	created_at = sprintf("2018-09-%02d %02d:%02d:%02d", rand(1...5), rand(24), rand(60), rand(60))
 
 	user_id = rand(200)
 	article_id = rand(100)
