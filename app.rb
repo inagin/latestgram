@@ -201,7 +201,7 @@ post '/upload' do
 	File.open(save_path, 'wb') do |f|
 		f.write params[:file][:tempfile].read
 
-		load_path = "http://localhost:4567/image/#{user_id}/" + "#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
+		load_path = "http://localhost:4567/image/#{user_id}/"+"#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
 
 		#投稿処理
 		created_at = DateTime.now.strftime('%Y-%m-%d %H:%M:%S')
