@@ -17,6 +17,8 @@ use Rack::Session::Pool,
 	expire_after: 60 * 10,
 	secret: Digest::SHA256.hexdigest(rand.to_s)
 
+set :public_folder, File.dirname(__FILE__) + '/public'
+
 private
 def db
 	return @db_client if defined?(@db_client)
@@ -33,18 +35,20 @@ get '/' do
 		query = "SELECT name FROM latestgram.user AS us WHERE us.id = #{@id}"
 
 		results = db.query(query)
-		@name = results.first
+		@name = results.first['name']
 
 	end
 
-	query = %q{SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50}
+	query = "SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50"
 	@results = db.query(query)
+	
 	@comments = {}
+
+
 
 	@results.each do |row|
 		#Todo: ループクエリになっている
-		#      commentから対応する3件のコメントを引っ張ってきた上で、そのコメントに対応するユーザー名も取得したい
-		query = "SELECT user_id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
+		query = "SELECT name, created_at, contents FROM latestgram.comment AS co JOIN latestgram.user AS us ON co.user_id = us.id WHERE co.article_id = #{row['id']} ORDER BY co.created_at DESC, co.id DESC LIMIT 3"
 	
 		
 		@comments[row['id']] = db.query(query)
@@ -136,7 +140,7 @@ get '/comment/:article_id' do |id|
 		@result = row
 	end
 
-	query = "SELECT user_id, created_at, contents FROM latestgram.comment AS co WHERE co.article_id = #{@result['id']} ORDER BY co.created_at DESC, co.id DESC"
+	query = "SELECT name, created_at, contents FROM latestgram.comment AS co JOIN latestgram.user AS us ON user_id = us.id WHERE co.article_id = #{@result['id']} ORDER BY co.created_at DESC, co.id DESC"
 	@comments = db.query(query)
 
 	erb :comment
@@ -164,4 +168,50 @@ post '/comment/submit' do
 	statement.execute(contents)
 
 	redirect "/comment/#{id}"
+end
+
+get '/upload' do
+	user_id = session[:user_id]
+	if(user_id.nil?) then
+		redirect "/"
+	end
+
+	erb :upload
+end
+
+post '/upload' do
+	if !params[:file] then
+		flash[:notice] = "ファイルを指定してください"
+		redirect "/upload"
+	end
+	
+	if params[:comment].empty? then
+		flash[:notice] = "コメントを記入してください"
+		redirect "/upload"
+	end
+
+
+	#latestgram/public/image/{user_id}/{timestamp}.png で保存
+	user_id = session[:user_id]
+	save_path = "./public/image/#{user_id}/"
+	FileUtils.mkdir_p(save_path) unless FileTest.exist?(save_path)
+
+	save_path += "#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
+
+	File.open(save_path, 'wb') do |f|
+		f.write params[:file][:tempfile].read
+
+		load_path = "http://localhost:4567/image/#{user_id}/" + "#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
+
+		#投稿処理
+		created_at = DateTime.now.strftime('%Y-%m-%d %H:%M:%S')
+		query = "INSERT INTO latestgram.article (created_at, user_id, image, good, contents) VALUES('#{created_at}', #{user_id}, '#{load_path}', 0, ?)"
+		statement = db.prepare(query)
+		statement.execute(params[:comment])
+
+		redirect "/"
+	else
+		flash[:notice] = "アップロードに失敗しました"
+		redirect "/upload"
+	end
 end
