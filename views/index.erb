@@ -1,35 +1,49 @@
-<h2>latestgram</h2>
-<a href="http://localhost:4567/signup">Sign Up</a>
-<a href="http://localhost:4567/login">Login</a>
+<h2 class="text-center">latestgram</h2>
+
+<% if @id.nil? then %>
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="/signup">Sign Up</a></li>
+	<li class="breadcrumb-item"><a href="/login">Login</a></li>
+</ol>
+<% else %>
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="/upload">Upload</a></li>
+	<li class="breadcrumb-item"><a href="/logout">Logout</a></li>
+</ol>
+<% end %>
 
 <p><%= flash[:notice] %></p>
 
 <% if !@id.nil? then%>
 <p>ようこそ <%= @name %> さん</p>
 <% end %>
+<div class="bg-dark">
+	<br>
+	<% @results.each do |row| %> 
+	<div class="container">
+		<div class="card mb-4 shadow-sm">
+		
+			<p>投稿者名: <%= row['name'] %> 投稿日時: <%= row['created_at'] %> </p>
+			<p><img class="card-img-top" src="/image/<%=row['user_id']%>/<%= row['image'] %>" width="200" ></p>
 
-<hr />
-<% @results.each do |row| %> 
-	<p>投稿者名: <%= row['name'] %> </p>
-	<p>投稿日時: <%= row['created_at'] %> </p>
-	<p><img src="<%= row['image'] %>"></p>
-	<p>いいね <%= row['good'] %> </p>
-	<p><%= row['contents'] %> </p>
-	
-	<hr />
+			<div class="card-body">
+				<p><%= row['contents'] %> </p>
+				<p><a href="/good/<%= row['id']%>">いいね</a>  <%= row['good'] %> </p>
 
-	<p>この画像に対するコメント</p>
-	<% @comments[row['id']].each do |c|%>
+				
+				<hr />
 
-		<p>投稿者ID: <%= c['user_id'] %> </p>
-		<p>投稿日時: <%= c['created_at'] %> </p>
-		<p><%= c['contents'] %></p>
+				<p>この画像に対するコメント</p>
+				<% @comments[row['id']].each do |c|%>
 
+					<p>投稿者ID: <%= c['name'] %> 投稿日時: <%= c['created_at'] %> </p>
+					<p><%= c['contents'] %></p>
+
+				<% end %>
+
+				<p><a href="/comment/<%= row['id']%>">コメントページへ移動する</a></p>
+			</div>
+		</div>
+	</div>
 	<% end %>
-
-	<p><a href="http://localhost:4567/comment/<%= row['id']%>">コメントページへ移動する</a></p>
-
-	<hr />
-	<hr />
-<% end %>
-
+</div>
