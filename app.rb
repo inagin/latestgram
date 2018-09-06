@@ -215,25 +215,3 @@ post '/upload' do
 		redirect "/upload"
 	end
 end
-
-get '/logout' do
-	user_id = session[:user_id]
-	if(user_id.nil?) then
-		redirect "/"
-	end
-
-	erb :logout
-end
-
-post '/logout' do
-	session[:user_id] = nil
-	redirect "/"
-end
-
-get '/good/:article_id' do |id|
-	query = "UPDATE latestgram.article SET good = good + 1 WHERE id = #{id}"
-	db.query(query)
-
-	redirect back
-
-end
