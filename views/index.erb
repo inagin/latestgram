@@ -17,7 +17,7 @@
 <% @results.each do |row| %> 
 	<p>投稿者名: <%= row['name'] %> </p>
 	<p>投稿日時: <%= row['created_at'] %> </p>
-	<p><img src="<%= row['image'] %>" width="400" ></p>
+	<p><img src="http://localhost:4567/image/<%=row['user_id']%>/<%= row['image'] %>" width="400" ></p>
 	<p>いいね <%= row['good'] %> </p>
 	<p><%= row['contents'] %> </p>
 	

@@ -39,7 +39,7 @@ get '/' do
 
 	end
 
-	query = "SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50"
+	query = "SELECT user_id, ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id ORDER BY created_at DESC , ar.id DESC LIMIT 50"
 	@results = db.query(query)
 	
 	@comments = {}
@@ -133,7 +133,7 @@ end
 get '/comment/:article_id' do |id|
 	@title = "latestgram - Comment(#{id})"
 
-	query = "SELECT ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id WHERE ar.id = #{id}"
+	query = "SELECT user_id, ar.id, name, created_at, image, good, contents FROM latestgram.article AS ar JOIN latestgram.user AS us ON ar.user_id = us.id WHERE ar.id = #{id}"
 	results = db.query(query)
 
 	results.each do |row|
@@ -201,7 +201,7 @@ post '/upload' do
 	File.open(save_path, 'wb') do |f|
 		f.write params[:file][:tempfile].read
 
-		load_path = "http://localhost:4567/image/#{user_id}/"+"#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
+		load_path = "#{DateTime.now.strftime('%Y%m%d%H%M%S')}#{File.extname(params[:file][:filename])}"
 
 		#投稿処理
 		created_at = DateTime.now.strftime('%Y-%m-%d %H:%M:%S')
